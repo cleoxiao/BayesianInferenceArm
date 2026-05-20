@@ -63,7 +63,7 @@ if __name__ == '__main__':
     time1 = time.time()
     results = main()
     time2 = time.time()
-    print(f'Simulation complete in {round(time2 - time1, 2)} s, at {round((time2-time1)/(c.n_trials * c.n_runs * agent.n_steps_max), 4)} s/step')
+    print(f'Simulation complete in {round(time2 - time1, 2)} s')
 
 
     file_name = 'outputs/results.csv'
