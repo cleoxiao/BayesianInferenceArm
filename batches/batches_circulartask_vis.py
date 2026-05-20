@@ -42,7 +42,7 @@ allowed_pairs = [
 ]
 # Define visualization functions to run for each batch iteration
 plot_functions = [  
-    vis.plotly_animation3,
+    vis.plotly_animation,
     # vis.plot_joint_angles
 ]
 plot_extra_text = [

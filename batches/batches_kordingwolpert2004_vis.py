@@ -39,7 +39,7 @@ allowed_pairs = [
 ]
 # Define visualization functions to run for each batch iteration
 plot_functions = [  
-    vis.plotly_animation2, 
+    vis.plotly_animation, 
     # vis.plot_joint_angles,
 ]
 plot_file_type = "pdf" # "pdf" or "png" # TODO: add png
