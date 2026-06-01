@@ -470,6 +470,9 @@ class Agent:
         if self.task_type == "repeated_reaching":
             self.setup_repeated_reaching_task()
 
+        elif self.task_type == "simple_reaching_task":
+            self.setup_simple_reaching_task()
+
         elif self.task_type == "tapping":
             self.setup_tapping_task()
 
@@ -550,8 +553,8 @@ class Agent:
                     self.torque_j1_efferent, self.torque_j2_efferent, 
                     self.torque_j1_sigma_scaled, self.torque_j2_sigma_scaled)
 
-        self.check_target_reached() 
-        self.save_step() 
+        self.check_target_reached()
+        self.save_step()
         # self.debug()
 
     def debug(self):
@@ -820,6 +823,9 @@ class Agent:
             self.p_target = c.p_target_even
         else:
             self.p_target = c.p_target_odd
+    
+    def setup_simple_reaching_task(self):
+        self.p_target = c.p_target
 
     def setup_seq_reaching_task(self):
         if self.trial % 2 == 0:

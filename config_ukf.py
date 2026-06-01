@@ -62,11 +62,12 @@ planned_max_time_target = 1
 p_target_static = np.array([0.0, 0.38])
 p_target_odd = p_hand_init
 p_target_even = np.array([0.2, 0.3])
-task_type = 'repeated_reaching'
+task_type = 'simple_reaching_task'
 task_types = [
     'j1_locked_reaching', 'repeated_reaching', 'circular_following', 
     'tapping', 'patterson2017', 'fournerett1997', 'maze_seq_reaching', 
-    'patterson2017_j1_locked','kordingwolpert2004', 'seq_reaching', 'roll1982'
+    'patterson2017_j1_locked','kordingwolpert2004', 'seq_reaching', 'roll1982',
+    "simple_reaching_task"
 ]
 r_target = 0.025
 v_target = np.array([0.0, 0.0])

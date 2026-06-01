@@ -21,7 +21,7 @@ import winsound
 
 # from batches import batches_circulartask as b
 # from batches import batches_seqreachingtask as b
-from batches import batches_kordingwolpert2004_vis as b
+from batches import batches_simple_testpy as b
 winsound.MessageBeep()  
 
 # Function to run a single configuration in a separate process
