@@ -66,7 +66,8 @@ task_type = 'repeated_reaching'
 task_types = [
     'j1_locked_reaching', 'repeated_reaching', 'circular_following', 
     'tapping', 'patterson2017', 'fournerett1997', 'maze_seq_reaching', 
-    'patterson2017_j1_locked','kordingwolpert2004', 'seq_reaching', 'roll1982'
+    'patterson2017_j1_locked','kordingwolpert2004', 'seq_reaching', 'roll1982',
+    'simple_reaching_task'
 ]
 r_target = 0.025
 v_target = np.array([0.0, 0.0])
