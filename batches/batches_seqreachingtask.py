@@ -20,8 +20,8 @@ param_grid = {
     "n_runs": [10],
     # "simulation_seed": [42],
     "n_trials": [3],
-    # "visual_feedback_rotation": [-7.5],
-    "visual_feedback_rotation": [0, 7.5, -7.5],
+    "visual_feedback_rotation": [-7.5],
+    #"visual_feedback_rotation": [0, 7.5, -7.5],
     "vis_p_sigma": [0.001],
     # "prop_rad_sigma": [0.06],
     "prop_rad_sigma": [0.015, 0.06],
@@ -42,11 +42,11 @@ param_grid = {
 
 allowed_pairs = [
     {"prop_rad_sigma": 0.015, "prop_omega_sigma": 0.06},
-    {"prop_rad_sigma": 0.06, "prop_omega_sigma": 0.015},
+    #{"prop_rad_sigma": 0.06, "prop_omega_sigma": 0.015},
 ]
 # Define visualization functions to run for each batch iteration
 plot_functions = [  
-    # vis.plotly_animation,
+    vis.plotly_animation,
     # vis.plot_joint_angles
 ]
 plot_extra_text = [
@@ -56,7 +56,7 @@ plot_extra_text = [
     "j2_motor_flexion_bias", "j2_motor_extension_bias"
 ]
 plot_file_type = "png" # "pdf" or "png" # TODO: add png
-reps_resample = 5 # repetitions per parameter setting, spread across different cores, e.g. if param_grid gives 3 combinations and reps = 4, then 12 cores will be used
+reps_resample = 1 # repetitions per parameter setting, spread across different cores, e.g. if param_grid gives 3 combinations and reps = 4, then 12 cores will be used
 reps_identical = 1 # repetitions per parameter setting, spread across different cores, e.g. if param_grid gives 3 combinations and reps = 4, then 12 cores will be used
 
 

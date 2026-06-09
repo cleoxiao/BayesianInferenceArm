@@ -13,7 +13,8 @@ from tqdm import tqdm
 import json
 import inspect
 import visualisation as vis
-import winsound
+import importlib
+import batches
 
 # from batches import batches_cody1990_onset as b
 # from batches import batches_fournerett1997 as b
@@ -21,8 +22,7 @@ import winsound
 
 # from batches import batches_circulartask as b
 # from batches import batches_seqreachingtask as b
-from batches import batches_simple_testpy as b
-winsound.MessageBeep()  
+# from batches import batches_seqreachingtask as b
 
 # Function to run a single configuration in a separate process
 def run_single_config(combo_info_tuple):
@@ -316,7 +316,10 @@ def combination_is_allowed_by_pairs(combo, allowed_pairs):
             continue
     return False
 
-if __name__ == "__main__":
+def start(taskname):
+    global b
+    taskname = 'batches.' + taskname
+    b = importlib.import_module(taskname, package=None)
     total_run_start = time.time()
     base_seed = int(total_run_start * 1000) # Use milliseconds for base_seed
     print(f"Start time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -439,4 +442,3 @@ if __name__ == "__main__":
     avg_time = sum(item["run_time"] for item in metadata_results if "run_time" in item) / len(metadata_results) if len(metadata_results) > 0 else 0
     print(f"Average run time per configuration: {avg_time:.2f} seconds")
     print(f"Total configurations: {len(metadata_results)}")
-    winsound.Beep(1000, 200)
