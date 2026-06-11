@@ -316,6 +316,13 @@ def combination_is_allowed_by_pairs(combo, allowed_pairs):
             continue
     return False
 
+def _worker_init(module_name):
+    """Import the batch module in each worker process.
+    Required on macOS/Windows where spawn (not fork) is the default start method."""
+    global b
+    b = importlib.import_module(module_name)
+
+
 def start(taskname):
     global b
     taskname = 'batches.' + taskname
@@ -401,7 +408,7 @@ def start(taskname):
     
     # Run configurations in parallel with progress bar
     metadata_results = []
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+    with ProcessPoolExecutor(max_workers=max_workers, initializer=_worker_init, initargs=(taskname,)) as executor:
         # Submit all tasks
         futures = [executor.submit(run_single_config, input_data) 
                   for input_data in worker_inputs]
