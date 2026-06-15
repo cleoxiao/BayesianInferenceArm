@@ -28,7 +28,7 @@ param_grid = {
 # Define visualization functions to run for each batch iteration
 plot_functions = [  
     vis.plotly_animation, 
-    # vis.plot_joint_angles,
+    vis.plot_trajectory_analysis
 ]
 plot_file_type = "pdf" # "pdf" or "png" # TODO: add png
 reps_resample = 1 # repetitions per parameter setting, spread across different cores, e.g. if param_grid gives 3 combinations and reps = 4, then 12 cores will be used

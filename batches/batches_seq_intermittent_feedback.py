@@ -50,6 +50,8 @@ param_grid = {
 
 plot_functions = [
     vis.plotly_animation,
+    #vis.plot_trajectory_analysis
+    vis.plot_visual_vs_proprioceptive_comparison
 ]
 plot_extra_text = [
     "visual_feedback_duration",

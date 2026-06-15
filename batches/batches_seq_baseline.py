@@ -42,6 +42,7 @@ param_grid = {
 
 plot_functions = [
     vis.plotly_animation,
+    vis.plot_trajectory_analysis
 ]
 plot_file_type = "png"
 reps_resample = 1
