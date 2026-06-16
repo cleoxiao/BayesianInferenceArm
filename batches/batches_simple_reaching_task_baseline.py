@@ -11,30 +11,30 @@ batch_name = "simple_reaching_task_baseline"
 save_results = True
 param_grid = {
     "task_type": ["simple_reaching_task"],
-    "planned_max_time_target": [2.0],
-    "max_time_per_trial": [3.0],
-    "p_target": [np.array([0.0, 0.3])],
-    "p_hand_init": [np.array([0.0, 0.0])],
-    "p_shoulder_init": [np.array([0.2, -0.2])],
-    "self_terminate": [True],
-    "r_target": [0.005],
-    "n_runs": [1],
-    "n_trials": [1],
-    "visual_feedback": [True],              # cursor always visible
-    "visual_intervention_bool": [False],    # no spatial distortion
-    "visual_feedback_rotation": [0.0],
-    "visual_offset": [np.array([0.0, 0.0])],
-    "vis_p_sigma": [0.001],
-    "apply_visual_noise": [False],          # perfectly clean cursor signal
-    "prop_rad_sigma": [0.06],
-    "prop_omega_sigma": [0.015],
-    "prop_unit": ["rad"],
-    "ukf_std_rad_j1_init": [1.0],
-    "ukf_std_rad_j2_init": [1.0],
-    "ukf_std_omega_j1_init": [1.0],
-    "ukf_std_omega_j2_init": [1.0],
-    "ukf_external_force_noise_sigma": [0.1],
-    "torque_sigma_prop": [0.05],
+    "planned_max_time_target": [2.0], # The amount of time in which the agent will try to reach the target
+    "max_time_per_trial": [3.0], # each trial will end after e.g. 2 seconds
+    "p_target": [np.array([0.0, 0.3])], # position of the target, cartesian space
+    "p_hand_init": [np.array([0.0, 0.0])], # hand start position
+    "p_shoulder_init": [np.array([0.2, -0.2])], # shoulder position (stationary within trial)
+    "self_terminate": [True], # if the agent shoulder end the trial when within dist r_target
+    "r_target": [0.005], # size of target, only relevant self_terminate = True
+    "n_runs": [1], # number of runs of n_trials
+    "n_trials": [1], # number of trials within a run
+    "visual_feedback": [True], # cursor always visible
+    "visual_intervention_bool": [False], # no spatial distortion
+    "visual_feedback_rotation": [0.0], # no rotational distortion
+    "visual_offset": [np.array([0.0, 0.0])], # no visual offset
+    "vis_p_sigma": [0.001], # amount of visual noise
+    "apply_visual_noise": [False], # perfectly clean cursor signal
+    "prop_rad_sigma": [0.06], # amount of proprioceptive positional noise, in joint space
+    "prop_omega_sigma": [0.015], # amount of proprioceptive velocity noise, in joint space
+    "prop_unit": ["rad"], # unit of the proprioceptive feedback in radians
+    "ukf_std_rad_j1_init": [1.0], # Initial uncertainty for rad_j1 (degrees)
+    "ukf_std_rad_j2_init": [1.0], # Initial uncertainty for rad_j2 (degrees)
+    "ukf_std_omega_j1_init": [1.0], # Initial uncertainty for omega_j1 (degrees/sec)
+    "ukf_std_omega_j2_init": [1.0], # Initial uncertainty for omega_j2 (degrees/sec)
+    "ukf_external_force_noise_sigma": [0.1], # Set to 0 to disable external force noise; assumes that all forces are correctly modelled by the agent UKF
+    "torque_sigma_prop": [0.05], # proportional torque noise density factor (unitless, scales efferent torque, then effectively becomes Nm/sqrt(s))
 }
 
 plot_functions = [
