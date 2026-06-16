@@ -3,34 +3,31 @@ import config_ukf as c
 import visualisation as vis
 
 
-# Baseline
-# Full, clean visual feedback throughout trial 0. No spatial distortion, no added noise.
+# Simple reaching task - Baseline
+# Full, clean visual feedback throughout the reaching movement. No spatial distortion, no added noise.
 # Models an ideal interaction technique with perfect cursor-hand correspondence.
-# visual_feedback_bool_onset=0.0 + visual_feedback_duration=10.0 keeps cursor visible
-# for the entire 1-second trial (seq_reaching activates feedback logic only on trial 0).
-batch_name = "seq_reaching_baseline"
+# visual_feedback=True keeps the cursor visible for the entire trial.
+batch_name = "simple_reaching_task_baseline"
 save_results = True
 param_grid = {
-    "task_type": ["seq_reaching"],
-    "use_optimal_control_planner": [True],
-    "use_receeding_horizon": [True],
-    "planned_max_time_target": [1.0],
-    "max_time_per_trial": [1.0],
-    "vary_p_shoulder_init": [False],
-    "p_target_even": [np.array([0.0, 0.38])],
-    "p_target_odd": [np.array([0.0, 0.0])],
+    "task_type": ["simple_reaching_task"],
+    "planned_max_time_target": [2.0],
+    "max_time_per_trial": [3.0],
+    "p_target": [np.array([0.0, 0.3])],
+    "p_hand_init": [np.array([0.0, 0.0])],
+    "p_shoulder_init": [np.array([0.2, -0.2])],
+    "self_terminate": [True],
+    "r_target": [0.005],
     "n_runs": [10],
-    "n_trials": [3],
-    "visual_feedback": [False],              # seq_reaching resets this; onset/duration control it
-    "visual_feedback_bool_onset": [0.0],     # feedback starts at movement onset
-    "visual_feedback_duration": [10.0],      # longer than trial -> effectively always on
-    "visual_intervention_bool": [False],     # no spatial distortion
+    "n_trials": [1],
+    "visual_feedback": [True],              # cursor always visible
+    "visual_intervention_bool": [False],    # no spatial distortion
     "visual_feedback_rotation": [0.0],
     "visual_offset": [np.array([0.0, 0.0])],
     "vis_p_sigma": [0.001],
-    "apply_visual_noise": [False],           # perfectly clean cursor signal
-    "prop_rad_sigma": [0.015],
-    "prop_omega_sigma": [0.06],
+    "apply_visual_noise": [False],          # perfectly clean cursor signal
+    "prop_rad_sigma": [0.06],
+    "prop_omega_sigma": [0.015],
     "prop_unit": ["rad"],
     "ukf_std_rad_j1_init": [1.0],
     "ukf_std_rad_j2_init": [1.0],
@@ -42,7 +39,7 @@ param_grid = {
 
 plot_functions = [
     vis.plotly_animation,
-    vis.plot_trajectory_analysis
+    vis.plot_movement_path_with_endpoints
 ]
 plot_file_type = "png"
 reps_resample = 1

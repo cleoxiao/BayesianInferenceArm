@@ -3,42 +3,42 @@ import config_ukf as c
 import visualisation as vis
 
 
-# Intermittent / partial visual feedback
+# Simple reaching task - Intermittent / partial visual feedback
 # Models interaction scenarios where the cursor is visible for only part of the movement:
 #   - mouse moving out of the display area / off-screen
 #   - cursor temporarily occluded by a UI element
 #   - gaze-contingent display that hides the cursor after initial movement
 #
-# visual_feedback_bool_onset=0.0: cursor appears immediately when movement starts.
-# visual_feedback_duration: varied across conditions - how many seconds the cursor
-#   remains visible before disappearing. With a 1-second trial:
-#     0.2s -> cursor visible only for the first 20% of movement
-#     0.5s -> cursor visible for the first half
-#     0.8s -> cursor visible until near the endpoint
-#     1.0s -> cursor visible throughout (equivalent to full feedback)
-batch_name = "seq_reaching_intermittent_feedback"
+# visual_feedback=False: cursor is off by default.
+# visual_feedback_on: [start, end] in seconds - the time window during which the cursor is visible.
+# With a 2-second planned movement:
+#   [0, 0.4] -> cursor visible only for the first 20% of movement
+#   [0, 0.8] -> cursor visible for the first 40%
+#   [0, 1.2] -> cursor visible for the first 60%
+#   [0, 1.6] -> cursor visible until near the endpoint (80%)
+#   [0, 2.0] -> cursor visible throughout (equivalent to full feedback)
+batch_name = "simple_reaching_task_intermittent_feedback"
 save_results = True
 param_grid = {
-    "task_type": ["seq_reaching"],
-    "use_optimal_control_planner": [True],
-    "use_receeding_horizon": [True],
-    "planned_max_time_target": [1.0],
-    "max_time_per_trial": [1.0],
-    "vary_p_shoulder_init": [False],
-    "p_target_even": [np.array([0.0, 0.38])],
-    "p_target_odd": [np.array([0.0, 0.0])],
+    "task_type": ["simple_reaching_task"],
+    "planned_max_time_target": [2.0],
+    "max_time_per_trial": [3.0],
+    "p_target": [np.array([0.0, 0.3])],
+    "p_hand_init": [np.array([0.0, 0.0])],
+    "p_shoulder_init": [np.array([0.2, -0.2])],
+    "self_terminate": [True],
+    "r_target": [0.005],
     "n_runs": [10],
-    "n_trials": [3],
+    "n_trials": [1],
     "visual_feedback": [False],
-    "visual_feedback_bool_onset": [0.0],              # cursor visible from movement start
-    "visual_feedback_duration": [0.2, 0.4, 0.6, 0.8, 1.0],  # seconds cursor remains visible
+    "visual_feedback_on": [[0, 0.4], [0, 0.8], [0, 1.2], [0, 1.6], [0, 2.0]],  # seconds cursor remains visible
     "visual_intervention_bool": [False],
     "visual_feedback_rotation": [0.0],
     "visual_offset": [np.array([0.0, 0.0])],
     "vis_p_sigma": [0.001],
     "apply_visual_noise": [False],
-    "prop_rad_sigma": [0.015],
-    "prop_omega_sigma": [0.06],
+    "prop_rad_sigma": [0.06],
+    "prop_omega_sigma": [0.015],
     "prop_unit": ["rad"],
     "ukf_std_rad_j1_init": [1.0],
     "ukf_std_rad_j2_init": [1.0],
@@ -50,11 +50,10 @@ param_grid = {
 
 plot_functions = [
     vis.plotly_animation,
-    #vis.plot_trajectory_analysis
-    vis.plot_visual_vs_proprioceptive_comparison
+    vis.plot_movement_path_with_endpoints
 ]
 plot_extra_text = [
-    "visual_feedback_duration",
+    "visual_feedback_on",
 ]
 plot_file_type = "png"
 reps_resample = 1

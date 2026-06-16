@@ -8,6 +8,7 @@ from tqdm import tqdm
 import os # Needed for checking/creating the output directory
 import seaborn as sns # Add seaborn import
 from scipy.linalg import eigh # For eigendecomposition
+from scipy.stats import chi2   # For 2-D confidence ellipse scaling
 from matplotlib.gridspec import GridSpec
 import matplotlib.patches as patches
 import matplotlib.cm as cm
@@ -2111,6 +2112,158 @@ def plot_trajectory_analysis(results_df, file_type="pdf", output_filename="outpu
         
     plt.savefig(output_filename, format=file_type) # dpi and bbox_inches from global rcParams
     plt.close()
+
+def _save_figure(fig, path, file_type, extra_text=None):
+    """Save a figure to disk, optionally adding an extra-text annotation box."""
+    output_dir = os.path.dirname(path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    if extra_text is not None:
+        text_ax = fig.add_axes([0.1, 0.01, 0.8, 0.04])
+        text_ax.axis('off')
+        text_ax.text(0.5, 0.5, extra_text,
+                     ha='center', va='center',
+                     transform=text_ax.transAxes, fontsize=8,
+                     bbox=dict(facecolor='white', edgecolor='gray',
+                               alpha=0.8, boxstyle='round,pad=0.5'))
+        fig.subplots_adjust(bottom=0.12)
+    fig.savefig(path, format=file_type)
+    plt.close(fig)
+    print(f"Plot saved to {path}")
+
+
+def _draw_target_circle(ax, target_x, target_y, r_target):
+    theta = np.linspace(0, 2 * np.pi, 100)
+    ax.plot(target_x + r_target * np.cos(theta),
+            target_y + r_target * np.sin(theta),
+            color='black', linewidth=1.5, label='Target')
+    ax.fill(target_x + r_target * np.cos(theta),
+            target_y + r_target * np.sin(theta),
+            alpha=0.08, color='gray')
+
+
+def _square_limits(ax, *series_pairs, padding=1.2, min_half_span=0.05):
+    """Set equal-aspect, square limits that cover all (x, y) series pairs."""
+    all_x = np.concatenate([s.values if hasattr(s, 'values') else np.asarray(s)
+                            for s, _ in series_pairs])
+    all_y = np.concatenate([s.values if hasattr(s, 'values') else np.asarray(s)
+                            for _, s in series_pairs])
+    cx = (np.nanmin(all_x) + np.nanmax(all_x)) / 2
+    cy = (np.nanmin(all_y) + np.nanmax(all_y)) / 2
+    half = max((np.nanmax(all_x) - np.nanmin(all_x)),
+               (np.nanmax(all_y) - np.nanmin(all_y))) / 2 * padding
+    half = max(half, min_half_span)
+    ax.set_xlim(cx - half, cx + half)
+    ax.set_ylim(cy - half, cy + half)
+
+
+def plot_movement_path_with_endpoints(results_df, file_type="pdf",
+                                      output_filename="outputs/movement_path_endpoints",
+                                      extra_text=None):
+    """
+    Single figure, two side-by-side panels:
+      Left  – individual per-trial movement trajectories (no cross-run connecting lines).
+      Right – endpoint scatter zoomed on the target, with 95% CI ellipse.
+    """
+    df = results_df.copy()
+    for col in ['run', 'trial', 'true_hand_x', 'true_hand_y']:
+        if col not in df.columns:
+            print(f"Warning: required column '{col}' missing. Cannot generate plot.")
+            return
+
+    # ── shared data ──────────────────────────────────────────────────────────
+    target_x = df['target_x'].iloc[0] if 'target_x' in df.columns else None
+    target_y = df['target_y'].iloc[0] if 'target_y' in df.columns else None
+    r_target  = float(df['r_target'].iloc[0]) if 'r_target' in df.columns else 0.025
+    start_x   = df['true_hand_x'].iloc[0]
+    start_y   = df['true_hand_y'].iloc[0]
+
+    endpoints = df.groupby(['run', 'trial'], sort=False).last().reset_index()
+    end_x = endpoints['true_hand_x'].values
+    end_y = endpoints['true_hand_y'].values
+
+    end_mean = np.array([np.nanmean(end_x), np.nanmean(end_y)])
+    if len(end_x) >= 3:
+        end_cov = np.cov(np.stack([end_x, end_y], axis=0))
+        scale_95_2d = np.sqrt(chi2.ppf(0.95, df=2))  # ≈ 2.448 for true 2-D 95% CI
+        ellipse_x, ellipse_y = calculate_ellipse_points(end_mean, end_cov, n_std=scale_95_2d)
+    else:
+        ellipse_x, ellipse_y = np.array([]), np.array([])
+
+    has_posterior = ('posterior_hand_x' in df.columns and 'posterior_hand_y' in df.columns)
+    runs = df['run'].unique()
+
+    # ── figure: 1 row × 2 columns ────────────────────────────────────────────
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 7))
+
+    # ── Left panel: Movement Paths ───────────────────────────────────────────
+    true_label_added = False
+    post_label_added = False
+    for run in runs:
+        run_df = df[df['run'] == run]
+        for trial_id in run_df['trial'].unique():
+            traj = run_df[run_df['trial'] == trial_id]
+            ax1.plot(traj['true_hand_x'].values, traj['true_hand_y'].values,
+                     color='steelblue', alpha=0.5, linewidth=1.0,
+                     label='Actual Path' if not true_label_added else '_nolegend_')
+            true_label_added = True
+            if has_posterior:
+                ax1.plot(traj['posterior_hand_x'].values, traj['posterior_hand_y'].values,
+                         color='darkorange', alpha=0.4, linewidth=0.8, linestyle='--',
+                         label='UKF Perceived Path' if not post_label_added else '_nolegend_')
+                post_label_added = True
+
+    if target_x is not None:
+        _draw_target_circle(ax1, target_x, target_y, r_target)
+    ax1.scatter([start_x], [start_y],
+                color='mediumseagreen', s=80, zorder=5,
+                edgecolors='white', linewidths=0.5, label='Start')
+
+    pairs1 = [(df['true_hand_x'], df['true_hand_y'])]
+    if has_posterior:
+        pairs1.append((df['posterior_hand_x'], df['posterior_hand_y']))
+    _square_limits(ax1, *pairs1)
+    ax1.set_aspect('equal', adjustable='box')
+    ax1.set_xlabel('X Position (m)')
+    ax1.set_ylabel('Y Position (m)')
+    ax1.set_title('Movement Paths')
+    ax1.legend(fontsize=GLOBAL_LEGEND_FONTSIZE)
+
+    # ── Right panel: Endpoint Distribution ───────────────────────────────────
+    ax2.scatter(end_x, end_y,
+                color='tomato', s=60, zorder=5, alpha=0.85,
+                edgecolors='white', linewidths=0.5, label='Endpoints')
+
+    if len(ellipse_x) > 0:
+        ax2.plot(ellipse_x, ellipse_y,
+                 color='tomato', linewidth=1.8, linestyle='--',
+                 zorder=6, label='95% CI')
+        ax2.scatter([end_mean[0]], [end_mean[1]],
+                    color='tomato', s=80, marker='+',
+                    linewidths=2.0, zorder=7, label='Mean endpoint')
+
+    if target_x is not None:
+        _draw_target_circle(ax2, target_x, target_y, r_target)
+
+    # zoom right panel around target, sized by actual endpoint spread
+    zoom_cx = target_x if target_x is not None else end_mean[0]
+    zoom_cy = target_y if target_y is not None else end_mean[1]
+    # minimum half-span of 6 cm so the ellipse stays readable even when endpoints cluster tightly
+    MIN_HALF_SPAN = 0.06
+    spread = max(np.nanmax(np.abs(end_x - zoom_cx)),
+                 np.nanmax(np.abs(end_y - zoom_cy)),
+                 r_target, MIN_HALF_SPAN) * 1.8 + 0.01
+    ax2.set_xlim(zoom_cx - spread, zoom_cx + spread)
+    ax2.set_ylim(zoom_cy - spread, zoom_cy + spread)
+    ax2.set_aspect('equal', adjustable='box')
+    ax2.set_xlabel('X Position (m)')
+    ax2.set_ylabel('Y Position (m)')
+    ax2.set_title('Endpoint Distribution (95% CI)')
+    ax2.legend(fontsize=GLOBAL_LEGEND_FONTSIZE)
+
+    # ── save ─────────────────────────────────────────────────────────────────
+    plt.tight_layout()
+    _save_figure(fig, f"{output_filename}.{file_type}", file_type, extra_text)
 
 def plot_visual_feedback_impact(results_df, file_type="pdf", output_filename="outputs/visual_feedback_impact_plot"):
     """

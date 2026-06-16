@@ -1547,7 +1547,7 @@ class Agent:
             else:
                 self.proprioceptive_intervention_bool = False
 
-        if self.task_type == "seq_reaching":
+        if self.task_type in ("seq_reaching", "simple_reaching_task"):
             self.visual_intervention_rotate_around = self.p_hand_init
         # Visual feedback from 10 cm from start in y direction, for 0.1 seconds
         if self.task_type == "kordingwolpert2004" or (self.task_type == "seq_reaching" and self.trial == 0):
