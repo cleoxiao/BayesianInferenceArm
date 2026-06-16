@@ -28,7 +28,7 @@ param_grid = {
     "p_shoulder_init": [np.array([0.2, -0.2])],
     "self_terminate": [True],
     "r_target": [0.005],
-    "n_runs": [10],
+    "n_runs": [5],
     "n_trials": [1],
     "visual_feedback": [True],
     "visual_intervention_bool": [False],              # no spatial distortion

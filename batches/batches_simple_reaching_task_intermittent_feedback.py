@@ -28,7 +28,7 @@ param_grid = {
     "p_shoulder_init": [np.array([0.2, -0.2])],
     "self_terminate": [True],
     "r_target": [0.005],
-    "n_runs": [10],
+    "n_runs": [5],
     "n_trials": [1],
     "visual_feedback": [False],
     "visual_feedback_on": [[0, 0.4], [0, 0.8], [0, 1.2], [0, 1.6], [0, 2.0]],  # seconds cursor remains visible
