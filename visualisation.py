@@ -2194,7 +2194,7 @@ def plot_movement_path_with_endpoints(results_df, file_type="pdf",
     runs = df['run'].unique()
 
     # ── figure: 1 row × 2 columns ────────────────────────────────────────────
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 7))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
 
     # ── Left panel: Movement Paths ───────────────────────────────────────────
     true_label_added = False
@@ -2245,14 +2245,18 @@ def plot_movement_path_with_endpoints(results_df, file_type="pdf",
     if target_x is not None:
         _draw_target_circle(ax2, target_x, target_y, r_target)
 
-    # zoom right panel around target, sized by actual endpoint spread
+    # zoom right panel around target, sized by ellipse + endpoint spread
     zoom_cx = target_x if target_x is not None else end_mean[0]
     zoom_cy = target_y if target_y is not None else end_mean[1]
-    # minimum half-span of 6 cm so the ellipse stays readable even when endpoints cluster tightly
-    MIN_HALF_SPAN = 0.06
-    spread = max(np.nanmax(np.abs(end_x - zoom_cx)),
-                 np.nanmax(np.abs(end_y - zoom_cy)),
-                 r_target, MIN_HALF_SPAN) * 1.8 + 0.01
+    end_half_x = np.nanmax(np.abs(end_x - zoom_cx))
+    end_half_y = np.nanmax(np.abs(end_y - zoom_cy))
+    if len(ellipse_x) > 0:
+        view_half_x = max(end_half_x, np.nanmax(np.abs(ellipse_x - zoom_cx)))
+        view_half_y = max(end_half_y, np.nanmax(np.abs(ellipse_y - zoom_cy)))
+    else:
+        view_half_x, view_half_y = end_half_x, end_half_y
+    MIN_HALF_SPAN = 0.03  # 3 cm minimum — tight enough for the ellipse to fill the panel
+    spread = max(view_half_x, view_half_y, r_target, MIN_HALF_SPAN) * 1.5 + 0.005
     ax2.set_xlim(zoom_cx - spread, zoom_cx + spread)
     ax2.set_ylim(zoom_cy - spread, zoom_cy + spread)
     ax2.set_aspect('equal', adjustable='box')
