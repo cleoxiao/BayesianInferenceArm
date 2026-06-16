@@ -3,37 +3,34 @@ import config_ukf as c
 import visualisation as vis
 
 
-# Visual distortion (spatial mapping error)
+# Simple reaching task - Visual distortion (spatial mapping error)
 # Models interaction scenarios where the cursor position does not match hand position:
 #   - Rotation: cursor moves at an angle relative to hand direction
 #     (e.g., rotated display, unusual tablet-to-screen mapping, prism adaptation)
 #
-# visual_intervention_bool=True enables the distortion pipeline (rotate_visual_feedback
-# + visual_offset). visual_feedback_rotation is in degrees.
-# visual_feedback_duration=10.0 keeps feedback on throughout the 1-second trial.
+# visual_intervention_bool=True enables the distortion pipeline (rotate_visual_feedback).
+# visual_feedback_rotation is in degrees. visual_feedback=True keeps cursor visible throughout.
 #
-batch_name = "seq_reaching_visual_distortion"
+batch_name = "simple_reaching_task_visual_distortion"
 save_results = True
 param_grid = {
-    "task_type": ["seq_reaching"],
-    "use_optimal_control_planner": [True],
-    "use_receeding_horizon": [True],
-    "planned_max_time_target": [1.0],
-    "max_time_per_trial": [1.0],
-    "vary_p_shoulder_init": [False],
-    "p_target_even": [np.array([0.0, 0.38])],
-    "p_target_odd": [np.array([0.0, 0.0])],
+    "task_type": ["simple_reaching_task"],
+    "planned_max_time_target": [2.0],
+    "max_time_per_trial": [3.0],
+    "p_target": [np.array([0.0, 0.3])],
+    "p_hand_init": [np.array([0.0, 0.0])],
+    "p_shoulder_init": [np.array([0.2, -0.2])],
+    "self_terminate": [True],
+    "r_target": [0.005],
     "n_runs": [10],
-    "n_trials": [3],
-    "visual_feedback": [False],
-    "visual_feedback_bool_onset": [0.0],
-    "visual_feedback_duration": [10.0],               # effectively always on
+    "n_trials": [1],
+    "visual_feedback": [True],
     "visual_intervention_bool": [True],               # enable distortion pipeline
     "visual_feedback_rotation": [0.0, 10.0, -10.0, 20.0, -20.0],  # degrees; positive = CCW
     "vis_p_sigma": [0.001],
     "apply_visual_noise": [False],
-    "prop_rad_sigma": [0.015],
-    "prop_omega_sigma": [0.06],
+    "prop_rad_sigma": [0.06],
+    "prop_omega_sigma": [0.015],
     "prop_unit": ["rad"],
     "ukf_std_rad_j1_init": [1.0],
     "ukf_std_rad_j2_init": [1.0],
@@ -46,6 +43,7 @@ param_grid = {
 
 plot_functions = [
     vis.plotly_animation,
+    vis.plot_movement_path_with_endpoints
 ]
 plot_extra_text = [
     "visual_feedback_rotation"

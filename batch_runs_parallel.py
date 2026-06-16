@@ -90,6 +90,8 @@ def run_single_config(combo_info_tuple):
     for key, value in combo.items():
         if isinstance(value, np.ndarray):
             results[key] = str(value.tolist())
+        elif isinstance(value, list):
+            results[key] = str(value)
         else:
             results[key] = value
 
